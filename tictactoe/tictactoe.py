@@ -159,25 +159,33 @@ def minimax(board):
     """
     Returns the optimal action for the current player on the board.
     """
-    def max_value(state):
+    def max_value(state, alpha=math.inf):
         if terminal(state):
             return utility(state)
 
         v = -math.inf
 
-        for action in actions(state):
-            v = max(v, min_value(result(state, action)))
+        alph = alpha
+        for action in actions(state, alpha=-math.inf):
+            v = max(v, min_value(result(state, action), alph))
+            if v >= alph:
+                return alph
+
+            alph = v
 
         return v
 
-    def min_value(state):
+    def min_value(state, alpha):
         if terminal(state):
             return utility(state)
 
         v = math.inf
 
+        alph = alpha
         for action in actions(state):
-            v = min(v, max_value(result(state, action)))
+            v = min(v, max_value(result(state, action), alpha))
+            if v <= alpha:
+                return alpha
 
         return v
 
