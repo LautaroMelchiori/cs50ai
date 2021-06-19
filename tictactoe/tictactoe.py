@@ -159,7 +159,7 @@ def minimax(board):
     """
     Returns the optimal action for the current player on the board.
     """
-    def max_value(state, alpha):
+    def max_value(state):
         if terminal(state):
             return utility(state)
 
@@ -170,7 +170,7 @@ def minimax(board):
 
         return v
 
-    def min_value(state, alpha):
+    def min_value(state):
         if terminal(state):
             return utility(state)
 
