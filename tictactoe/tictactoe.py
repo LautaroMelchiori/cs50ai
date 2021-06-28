@@ -159,6 +159,9 @@ def minimax(board):
     """
     Returns the optimal action for the current player on the board.
     """
+    if terminal(board):
+        return None
+
     def max_value(state, alpha=math.inf):
         if terminal(state):
             return utility(state)
