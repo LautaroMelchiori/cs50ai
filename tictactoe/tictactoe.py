@@ -165,13 +165,10 @@ def minimax(board):
 
         v = -math.inf
 
-        alph = alpha
         for action in actions(state):
-            v = max(v, min_value(result(state, action), alph))
-            if v >= alph:
-                return alph
-
-            alph = v
+            v = max(v, min_value(result(state, action), v))
+            if v >= alpha:
+                return alpha
 
         return v
 
@@ -181,9 +178,8 @@ def minimax(board):
 
         v = math.inf
 
-        alph = alpha
         for action in actions(state):
-            v = min(v, max_value(result(state, action), alpha))
+            v = min(v, max_value(result(state, action), v))
             if v <= alpha:
                 return alpha
 
