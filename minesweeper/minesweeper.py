@@ -105,13 +105,13 @@ class Sentence():
         """
         Returns the set of all cells in self.cells known to be mines.
         """
-        return set(self.cells) if len(self.cells) == self.count else set()
+        return self.cells.copy() if len(self.cells) == self.count else set()
 
     def known_safes(self):
         """
         Returns the set of all cells in self.cells known to be safe.
         """
-        return set(self.cells) if self.count == 0 else set()
+        return self.cells.copy() if self.count == 0 else set()
 
     def mark_mine(self, cell):
         """
@@ -185,47 +185,41 @@ class MinesweeperAI():
             5) add any new sentences to the AI's knowledge base
                if they can be inferred from existing knowledge
         """
-        # 1)
         self.moves_made.add(cell)
-
-        # 2)
         self.mark_safe(cell)
 
-        # 3)
         cells = []
         mines_count = count
         for i in range(cell[0] - 1, cell[0] + 2):
             for j in range(cell[1] - 1, cell[1] + 2):
+                neighbor = (i, j)
+
+                # check if we're within board limits
                 if 0 <= i < self.height and 0 <= j < self.width:
-                    if (i, j) in self.mines:
+                    if neighbor in self.mines:
                         mines_count -= 1
-                    elif (i, j) in self.safes:
+                    elif neighbor in self.safes:
                         continue
                     else:
-                        cells.append((i, j))
+                        cells.append(neighbor)
 
         sentence = Sentence(cells, mines_count)
         self.knowledge.append(sentence)
 
-        # 4)
-        def mark_mines_and_safes(sentence):
+        for sentence in self.knowledge:
             mines = sentence.known_mines()
             safes = sentence.known_safes()
 
             if len(mines) != 0:
-                self.knowledge.remove(sentence)
                 for mine in mines:
-                    self.mark_mine(mine)
+                    if mine not in self.mines:
+                        self.mark_mine(mine)
 
             if len(safes) != 0:
-                self.knowledge.remove(sentence)
                 for safe in safes:
-                    self.mark_safe(safe)
+                    if safe not in self.safes:
+                        self.mark_safe(safe)
 
-        for sentence in self.knowledge:
-            mark_mines_and_safes(sentence)
-
-        # 5)
         for sentence1 in self.knowledge:
             for sentence2 in self.knowledge:
                 if sentence1 == sentence2:
@@ -239,8 +233,6 @@ class MinesweeperAI():
 
                         if sentence not in self.knowledge:
                             self.knowledge.append(new_sentence)
-
-                            mark_mines_and_safes(new_sentence)
 
     def make_safe_move(self):
         """
@@ -266,7 +258,8 @@ class MinesweeperAI():
         """
         for i in range(self.height):
             for j in range(self.width):
-                if (i, j) not in self.mines and (i, j) not in self.moves_made:
-                    return (i, j)
+                move = (i, j)
+                if move not in self.moves_made and move not in self.mines:
+                    return move
 
         return None
