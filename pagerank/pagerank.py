@@ -146,7 +146,41 @@ def iterate_pagerank(corpus, damping_factor):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    raise NotImplementedError
+    number_of_pages = len(corpus)
+
+    PageRank_dict = dict.fromkeys(corpus, 1 / number_of_pages)
+
+    # this helper dict will match every page with a set of all the pages that link to it
+    helper_dict = dict()
+
+    # populate the helper dict
+    for page in corpus.keys():
+        helper_dict[page] = set()
+        for page2 in corpus.keys():
+            if page in corpus[page2]:
+                helper_dict[page].add(page2)
+
+    convergence = False
+    while not convergence:
+        converged_values = 0
+        # process of calculating PageRank
+        for page in corpus.keys():
+            prev_value = PageRank_dict[page]
+
+            sumation = 0
+            for i in helper_dict[page]:
+                sumation += PageRank_dict[i] / len(corpus[i])
+
+            PageRank_dict[page] = (1 - damping_factor) / number_of_pages + \
+                damping_factor * sumation
+
+            if abs(PageRank_dict[page] - prev_value) < 0.001:
+                converged_values += 1
+
+        if converged_values == number_of_pages:
+            convergence = True
+
+    return PageRank_dict
 
 
 if __name__ == "__main__":
