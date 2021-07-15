@@ -2,6 +2,7 @@ import os
 import random
 import re
 import sys
+from collections import Counter
 
 DAMPING = 0.85
 SAMPLES = 10000
@@ -99,7 +100,41 @@ def sample_pagerank(corpus, damping_factor, n):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    raise NotImplementedError
+    # util function
+    def get_sample(distribution):
+        """
+        Selects and returns a sample given a probability distribution
+        """
+        all_pages = list(distribution.keys())
+        all_probs = list(distribution.values())
+        sample = random.choices(all_pages, all_probs)
+
+        return sample[0]
+
+    # generate first sample randomly
+    first_sample = random.choice(list(corpus.keys()))
+    sample_counter = Counter()
+
+    sample_counter[first_sample] += 1
+
+    last_sample = first_sample
+
+    # generate and count n-1 samples (already generated first one)
+    for _ in range(n - 1):
+        # for each new sample we're using the last sample as a start point
+        distribution = transition_model(corpus, last_sample, damping_factor)
+        current_sample = get_sample(distribution)
+
+        sample_counter[current_sample] += 1
+
+        last_sample = current_sample
+
+    # calculate the proportions
+    PageRank_dict = dict()
+    for page in sample_counter:
+        PageRank_dict[page] = sample_counter[page] / n
+
+    return PageRank_dict
 
 
 def iterate_pagerank(corpus, damping_factor):
