@@ -139,7 +139,101 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         * everyone in set `have_trait` has the trait, and
         * everyone not in set` have_trait` does not have the trait.
     """
-    raise NotImplementedError
+    def calculate(person):
+        """
+        Calculate the chance a person has the amount of genes required, and has the trait (or doesnt have it)
+        Depending on which set (given as parameters to the joint_probability function) are they included in
+
+        This function works for people from whose parents we dont have information about
+        """
+        prob = 0
+
+        # set the chance someone has a particular amount of mutated genes
+        if person['name'] in one_gene:
+            prob += PROBS["gene"][1]
+            genes = 1
+        elif person['name'] in two_genes:
+            prob += PROBS["gene"][2]
+            genes = 2
+        else:
+            prob += PROBS["gene"][0]
+            genes = 0
+
+        # calculate the chance they have the particular amount of genes and present (or not) the trait
+        if person['name'] in have_trait:
+            prob *= PROBS["trait"][genes][True]
+        else:
+            prob *= PROBS["trait"][genes][False]
+
+        return prob
+
+    def calculate_gene_passing(person):
+        """
+        Calculates the chance person passes a mutated gene to their child
+        """
+        # if parent has one good gene and one mutated, the chance they pass mutated one to child is 0.5
+        # times the chance it doesn't mutate (1 - the chance it does mutate)
+        if person['name'] in one_gene:
+            prob = 0.5 * (1 - PROBS["mutation"])
+        # if parent has two mutated genes, they'll pass a mutated gene to child, so the probability child gets
+        # mutated gene is 1 times the chance it doesn't mutate
+        elif person['name'] in two_genes:
+            prob = 1 * (1 - PROBS["mutation"])
+        # if parent doesn't have mutated genes, the only chance it passes one to child is if a good gene mutates
+        else:
+            prob = PROBS["mutation"]
+
+        return prob
+
+    def calculate_conditional(person):
+        """
+        Calculate the chance a person has the amount of genes required, and has the trait (or doesnt have it)
+        Depending on which set (given as parameters to the joint_probability function) are they included in
+
+        This function works for people from whose parents we have information about
+        """
+        father = people[person['father']]
+        mother = people[person['mather']]
+
+        chance_mother_passes = calculate_gene_passing(mother)
+        chance_father_passes = calculate_gene_passing(father)
+
+        prob = 0
+
+        if person['name'] in one_gene:
+            # probability is composed by adding two possible casses for the child having one mutated gene:
+            # mather passes, father doesnt
+            # father passes, mother doesnt
+            prob = chance_mother_passes * (1 - chance_father_passes) + \
+                chance_father_passes * (1 - chance_mother_passes)
+
+            genes = 1
+        elif person['name'] in two_genes:
+            prob = chance_father_passes * chance_mother_passes
+            genes = 2
+        else:
+            prob = (1 - chance_mother_passes) * (1 - chance_father_passes)
+            genes = 0
+
+        if person['name'] in have_trait:
+            prob *= PROBS["trait"][genes][True]
+        else:
+            prob *= PROBS["trait"][genes][False]
+
+        return prob
+
+    # we calculate the joint probability of the events described in the parameters by
+    # multiplying the individual chances of each of them happening
+    total_prob = 1
+    for person in people:
+        current_person = people[person]
+        # check if we have info about person's parents or not
+        if current_person['father'] is None:
+            total_prob *= calculate(current_person)
+        else:
+            total_prob *= calculate_conditional(current_person)
+
+    return total_prob
 
 
 def update(probabilities, one_gene, two_genes, have_trait, p):
