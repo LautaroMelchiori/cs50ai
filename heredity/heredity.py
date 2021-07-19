@@ -193,7 +193,7 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         This function works for people from whose parents we have information about
         """
         father = people[person['father']]
-        mother = people[person['mather']]
+        mother = people[person['mother']]
 
         chance_mother_passes = calculate_gene_passing(mother)
         chance_father_passes = calculate_gene_passing(father)
