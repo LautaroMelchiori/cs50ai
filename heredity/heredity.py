@@ -171,10 +171,12 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         """
         Calculates the chance person passes a mutated gene to their child
         """
-        # if parent has one good gene and one mutated, the chance they pass mutated one to child is 0.5
-        # times the chance it doesn't mutate (1 - the chance it does mutate)
+        # if parent has one good gene and one mutated there's 2 cases they pass a mutated one to child:
+        # - They pass mutated gene (0.5 chance), times the chance it doesnt mutate
+        # - They pass good gene (0.5 chance), times the chance it does mutate, into a mutated one
+        # So we add the chance of both cases to calculate the probability of passing mutated gene to child
         if person['name'] in one_gene:
-            prob = 0.5 * (1 - PROBS["mutation"])
+            prob = 0.5 * (1 - PROBS["mutation"]) + (0.5 * PROBS["mutation"])
         # if parent has two mutated genes, they'll pass a mutated gene to child, so the probability child gets
         # mutated gene is 1 times the chance it doesn't mutate
         elif person['name'] in two_genes:
