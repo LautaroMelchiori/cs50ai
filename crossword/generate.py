@@ -112,7 +112,37 @@ class CrosswordCreator():
         Return True if a revision was made to the domain of `x`; return
         False if no revision was made.
         """
-        raise NotImplementedError
+        def lets_value_for_y(x_value, y, x_index, y_index):
+            """
+            Receives a value for variable X, some other variable Y
+            And the indices where they overlap
+
+            Checks if the value X lets some possible value for Y such that
+            the binary constraint that the characters at the overlap must 
+            be equal is satisfied
+
+            Returns True if such value in Y's domain exists, False otherwise
+            """
+            x_char = x_value[x_index]
+            for y_value in self.domains[y]:
+                y_char = y_value[y_index]
+                if x_char == y_char:
+                    return True
+
+            return False
+
+        overlap = self.crossword.overlaps[x, y]
+        revised = False
+
+        # check if x and y overlap
+        if overlap is not None:
+            x_index, y_index = overlap
+            for x_value in self.domains[x]:
+                if not lets_value_for_y(x_value, y, x_index, y_index):
+                    self.domains[x].remove(x_value)
+                    revised = True
+
+        return revised
 
     def ac3(self, arcs=None):
         """
