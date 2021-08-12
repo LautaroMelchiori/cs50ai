@@ -103,6 +103,25 @@ class CrosswordCreator():
             self.domains[variable] = {
                 word for word in domain if len(word) == variable.length}
 
+    def lets_value_for_y(self, x_value, y, x_index, y_index):
+        """
+        Receives a value for variable X, some other variable Y
+        And the indices where they overlap
+
+        Checks if the value X lets some possible value for Y such that
+        the binary constraint that the characters at the overlap must 
+        be equal is satisfied
+
+        Returns True if such value in Y's domain exists, False otherwise
+        """
+        x_char = x_value[x_index]
+        for y_value in self.domains[y]:
+            y_char = y_value[y_index]
+            if x_char == y_char:
+                return True
+
+        return False
+
     def revise(self, x, y):
         """
         Make variable `x` arc consistent with variable `y`.
@@ -112,24 +131,6 @@ class CrosswordCreator():
         Return True if a revision was made to the domain of `x`; return
         False if no revision was made.
         """
-        def lets_value_for_y(x_value, y, x_index, y_index):
-            """
-            Receives a value for variable X, some other variable Y
-            And the indices where they overlap
-
-            Checks if the value X lets some possible value for Y such that
-            the binary constraint that the characters at the overlap must 
-            be equal is satisfied
-
-            Returns True if such value in Y's domain exists, False otherwise
-            """
-            x_char = x_value[x_index]
-            for y_value in self.domains[y]:
-                y_char = y_value[y_index]
-                if x_char == y_char:
-                    return True
-
-            return False
 
         overlap = self.crossword.overlaps[x, y]
         revised = False
@@ -138,7 +139,7 @@ class CrosswordCreator():
         if overlap is not None:
             x_index, y_index = overlap
             for x_value in self.domains[x]:
-                if not lets_value_for_y(x_value, y, x_index, y_index):
+                if not self.lets_value_for_y(x_value, y, x_index, y_index):
                     self.domains[x].remove(x_value)
                     revised = True
 
@@ -186,7 +187,16 @@ class CrosswordCreator():
         Return True if `assignment` is consistent (i.e., words fit in crossword
         puzzle without conflicting characters); return False otherwise.
         """
-        raise NotImplementedError
+        for var, word in assignment.items():
+            if var.length != len(word):
+                return False
+
+            for neighbor in self.crossword.neighbors(var):
+                x_index, y_index = self.crossword.overlaps[var, neighbor]
+                if not self.lets_value_for_y(word, neighbor, x_index, y_index):
+                    return False
+
+        return True
 
     def order_domain_values(self, var, assignment):
         """
