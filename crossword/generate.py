@@ -187,6 +187,7 @@ class CrosswordCreator():
         Return True if `assignment` is consistent (i.e., words fit in crossword
         puzzle without conflicting characters); return False otherwise.
         """
+        values = {}
         for var, word in assignment.items():
             if var.length != len(word):
                 return False
@@ -195,6 +196,12 @@ class CrosswordCreator():
                 x_index, y_index = self.crossword.overlaps[var, neighbor]
                 if not self.lets_value_for_y(word, neighbor, x_index, y_index):
                     return False
+
+            values.add(word)
+
+        # if the amount of values and the amount of variables differ, there must be repeated values
+        if len(values) != len(assignment):
+            return False
 
         return True
 
