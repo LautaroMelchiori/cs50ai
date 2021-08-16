@@ -138,7 +138,8 @@ class CrosswordCreator():
         # check if x and y overlap
         if overlap is not None:
             x_index, y_index = overlap
-            for x_value in self.domains[x]:
+            # make the domain a list so we can remove elements from it as we iterate over it
+            for x_value in list(self.domains[x]):
                 if not self.lets_value_for_y(x_value, y, x_index, y_index):
                     self.domains[x].remove(x_value)
                     revised = True
@@ -187,7 +188,7 @@ class CrosswordCreator():
         Return True if `assignment` is consistent (i.e., words fit in crossword
         puzzle without conflicting characters); return False otherwise.
         """
-        values = {}
+        values = set()
         for var, word in assignment.items():
             if var.length != len(word):
                 return False
