@@ -289,14 +289,14 @@ class CrosswordCreator():
             assignment[var] = value
             if self.consistent(assignment):
                 result = self.backtrack(assignment)
-                if result != False:
+                if result is not None:
                     return result
                 else:
                     assignment.pop(var)
             else:
                 assignment.pop(var)
 
-        return False
+        return None
 
 
 def main():
