@@ -242,9 +242,35 @@ class CrosswordCreator():
         degree. If there is a tie, any of the tied variables are acceptable
         return values.
         """
-        for var in self.crossword.variables:
-            if var not in assignment.keys():
-                return var
+        # list of unassigned variables
+        vars = [var for var in self.crossword.variables if var not in assignment]
+
+        # sort them by the size of their domains
+        smaller_domain_sorted_list = sorted(
+            vars, key=lambda var: len(self.domains[var]))
+
+        # flag to know if ALL vars are tied in domain size, or only some
+        complete_tie = True
+
+        smallest_domain_var = smaller_domain_sorted_list[0]
+
+        # check if there's tie in domain size heuristic
+        for i, var in enumerate(smaller_domain_sorted_list):
+            # all of which have equal domain size as the smallest one are tied
+            if len(self.domains[var]) == len(self.domains[smallest_domain_var]):
+                continue
+
+            # once we find one var with a domain size different from the smallest one,
+            # we know which variables are tied (and we know that not all of them are)
+            tied = smaller_domain_sorted_list[0:i]
+            complete_tie = False
+            break
+
+        if complete_tie:
+            tied = smaller_domain_sorted_list
+
+        # select the one (or one of the ones) with the largest degree (degree given by the amount of neighbors)
+        return sorted(tied, key=lambda var: len(self.crossword.neighbors(var)), reverse=True)[0]
 
     def backtrack(self, assignment):
         """
