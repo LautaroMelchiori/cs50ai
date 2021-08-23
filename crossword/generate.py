@@ -194,9 +194,10 @@ class CrosswordCreator():
                 return False
 
             for neighbor in self.crossword.neighbors(var):
-                x_index, y_index = self.crossword.overlaps[var, neighbor]
-                if not self.lets_value_for_y(word, neighbor, x_index, y_index):
-                    return False
+                if neighbor in assignment:
+                    x_index, y_index = self.crossword.overlaps[var, neighbor]
+                    if word[x_index] != assignment[neighbor][y_index]:
+                        return False
 
             values.add(word)
 
