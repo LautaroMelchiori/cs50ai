@@ -1,5 +1,7 @@
 import csv
 import sys
+from numpy import positive
+from scipy.stats.stats import SpearmanRConstantInputWarning
 
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
@@ -127,7 +129,25 @@ def evaluate(labels, predictions):
     representing the "true negative rate": the proportion of
     actual negative labels that were accurately identified.
     """
-    raise NotImplementedError
+    positive_cases = 0
+    negative_cases = 0
+    right_positive_predictions = 0
+    right_negative_predictions = 0
+
+    for label, prediction in zip(labels, predictions):
+        if label == 0:
+            negative_cases += 1
+            if prediction == 0:
+                right_negative_predictions += 1
+        else:
+            positive_cases += 1
+            if prediction == 1:
+                right_positive_predictions += 1
+
+    sensitivity = right_positive_predictions / positive_cases
+    specificity = right_negative_predictions / negative_cases
+
+    return sensitivity, specificity
 
 
 if __name__ == "__main__":
