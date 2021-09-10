@@ -59,7 +59,46 @@ def load_data(filename):
     labels should be the corresponding list of labels, where each label
     is 1 if Revenue is true, and 0 otherwise.
     """
-    raise NotImplementedError
+    months = {'Jan': 0,
+              'Feb': 1,
+              'Mar': 2,
+              'Apr': 3,
+              'May': 4,
+              'June': 5,
+              'Jul': 6,
+              'Aug': 7,
+              'Sep': 8,
+              'Oct': 9,
+              'Nov': 10,
+              'Dec': 11}
+
+    def convert_month(month): return months[month]
+    def convert_bool(val): return 0 if val == 'FALSE' else 1
+    def convert_visitor(vis): return 1 if vis == 'Returning_Visitor' else 0
+
+    types = [int, float, int, float, int, float, float, float, float, float,
+             convert_month, int, int, int, int, convert_visitor, convert_bool]
+
+    with open(filename) as f:
+        rows = csv.reader(f)
+
+        headers = next(rows)
+
+        evidence = []
+        labels = []
+
+        for row in rows:
+            current_evidence = []
+            current_label = convert_bool(row[-1])
+
+            # fix data types
+            for i, column in enumerate(row[:-1]):
+                current_evidence.append(types[i](column))
+
+            evidence.append(current_evidence)
+            labels.append(current_label)
+
+        return evidence, labels
 
 
 def train_model(evidence, labels):
