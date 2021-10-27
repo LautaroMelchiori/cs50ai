@@ -122,7 +122,12 @@ class NimAI():
         `alpha` is the learning rate, and `new value estimate`
         is the sum of the current reward and estimated future rewards.
         """
-        raise NotImplementedError
+        key = tuple(state), action
+
+        old_estimate = self.get_q_value(state, action)
+        new_estimate = reward + future_rewards
+
+        self.q[key] = old_estimate + self.alpha * (new_estimate - old_estimate)
 
     def best_future_reward(self, state):
         """
