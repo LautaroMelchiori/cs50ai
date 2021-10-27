@@ -156,7 +156,7 @@ class NimAI():
                 current_value = 0
 
             if current_value > max:
-                max = self.q[key]
+                max = current_value
 
         return max
 
