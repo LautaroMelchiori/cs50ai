@@ -69,7 +69,7 @@ def load_data(data_dir):
                     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)   # BGR -> RGB
                     img = cv2.resize(img, (IMG_WIDTH, IMG_HEIGHT))
                     images.append(img)
-                    labels.append(dir)
+                    labels.append(int(dir))
 
     return images, labels
 
