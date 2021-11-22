@@ -61,8 +61,11 @@ def load_data(data_dir):
     images = []
     labels = []
 
-    for orig_root, dirs, files in os.walk(data_dir):
+    print("Loading data...")
+
+    for orig_root, dirs, files in os.walk(os.path.join(".", data_dir)):
         for dir in dirs:
+            print(f"Loading Category {dir}")
             for root, dirs, files in os.walk(os.path.join(orig_root, dir)):
                 for file in files:
                     img = cv2.imread(os.path.join(root, file))
@@ -70,6 +73,9 @@ def load_data(data_dir):
                     img = cv2.resize(img, (IMG_WIDTH, IMG_HEIGHT))
                     images.append(img)
                     labels.append(int(dir))
+
+    print(
+        f"Data loading finished. {len(images)} files loaded from {NUM_CATEGORIES} categories")
 
     return images, labels
 
@@ -85,8 +91,19 @@ def get_model():
 
         # Convolutional layer. Learn 32 filters using a 3x3 kernel
         tf.keras.layers.Conv2D(
+            64, (3, 3), activation="relu", input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)
+        ),
+
+        # Second Convolutional Layer
+        tf.keras.layers.Conv2D(
             32, (3, 3), activation="relu", input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)
         ),
+
+        # Third Convolutional Layer
+        tf.keras.layers.Conv2D(
+            16, (3, 3), activation="relu", input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)
+        ),
+
 
         # Max-pooling layer, using 2x2 pool size
         tf.keras.layers.MaxPooling2D(pool_size=(2, 2)),
@@ -95,8 +112,13 @@ def get_model():
         tf.keras.layers.Flatten(),
 
         # Add a hidden layer with dropout
-        tf.keras.layers.Dense(471, activation="relu"),
-        tf.keras.layers.Dropout(0.25),
+        # Took the mean of the input layer (dimensions of the images) and the output layer (number of categories)
+        # to determine the amount of nodes
+        tf.keras.layers.Dense(
+            (IMG_WIDTH * IMG_HEIGHT + NUM_CATEGORIES) / 2, activation="relu"),
+
+        # add some dropout
+        tf.keras.layers.Dropout(0.50),
 
         # Add an output layer with output units for all categories
         tf.keras.layers.Dense(NUM_CATEGORIES, activation="softmax")
