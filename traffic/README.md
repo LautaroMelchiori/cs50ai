@@ -8,7 +8,7 @@ from overfitting (0.6 less accuracy on testing than on training data)
 I decided to add some dropout (0.5) which improved the overfitting problem but the
 accuracy wasn't very high. I started researching on how to select the ideal amount
 of layers, and the ideal amount of nodes in them. I added a few more convolutional layers,
-a first one learning 64 filters, second one 32, and third one 16.
+a first one learning 32 filters, second one 16, and third one 8.
 On top of that I decided to change the nodes in the hidden dense layer from 100 
 (which was just an arbitrary selection i did) to the mean between 2 values: 
 the amount of pixels in the images (input), and the number of categories (output).
