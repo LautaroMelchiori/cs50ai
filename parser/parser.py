@@ -1,3 +1,4 @@
+from os import curdir
 import nltk
 import sys
 
@@ -89,7 +90,26 @@ def np_chunk(tree):
     whose label is "NP" that does not itself contain any other
     noun phrases as subtrees.
     """
-    raise NotImplementedError
+    chunks = []
+    # traverse subtrees of sentence
+    for t in tree.subtrees():
+        # once we find an np subtree, we check if it has others NPs as subtrees
+        if t.label() == 'NP':
+            np_flag = True
+            for subt in t.subtrees():
+                # subtrees method gives us the tree itself as a subtree, so we skip in that case
+                if subt == t:
+                    continue
+
+                # check if any subtree is an np
+                if subt.label() == 'NP':
+                    np_flag = False
+
+            # if no subtree is np, we append the NP-chunk
+            if np_flag:
+                chunks.append(t)
+
+    return chunks
 
 
 if __name__ == "__main__":
