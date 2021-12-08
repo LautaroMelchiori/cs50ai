@@ -62,7 +62,18 @@ def preprocess(sentence):
     and removing any word that does not contain at least one alphabetic
     character.
     """
-    raise NotImplementedError
+    def validate_word(word):
+        """
+        Receives a word, validates that it contains
+        at least 1 alphabetic character, turns it to
+        lowercase and returns it
+        """
+        for letter in word:
+            if letter.isalpha():
+                return word.lower()
+        return False
+
+    return [validate_word(word) for word in nltk.word_tokenize(sentence) if validate_word(word)]
 
 
 def np_chunk(tree):
